@@ -15,9 +15,11 @@ pipeline {
                 sh 'ls -la ${WORKSPACE}'
 
                 // Remove existing files on the remote server first
-               sh """
-                    gcloud compute ssh root@awaisinstance-20240521-055418 --zone=us-central1-c --impersonate-service-account=awais-service-account@Devops-project.iam.gserviceaccount.com -- rm -rf /var/www/html/*
+               
+                sh """
+                    gcloud compute ssh root@awaisinstance-20240521-055418 --zone=us-central1-c --scopes=https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/cloud-platform -- rm -rf /var/www/html/*
                 """
+            
 
                 // Then copy new files from Jenkins workspace to the remote server
                 sh '''
