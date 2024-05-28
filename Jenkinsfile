@@ -1,3 +1,6 @@
+
+              
+     
 pipeline {
     agent any
 
@@ -16,12 +19,7 @@ pipeline {
             steps {
                 sh 'pwd'
                 sh 'ls -la'
-                withCredentials([usernamePassword(credentialsId: 'gcloud-credentials', passwordVariable: 'GCLOUD_PASSWORD', usernameVariable: 'GCLOUD_USERNAME')]) {
-                    sh """
-                        gcloud auth activate-service-account --key-file=/var/lib/jenkins/workspace/Tocs-proj_AI/gcloud-credentials.json
-                        gcloud compute ssh root@awaisinstance-20240521-055418 --zone=us-central1-c -- rm -rf /var/www/html/*
-                    """
-                }
+                // Add your test stage steps here
             }
         }
         stage('Run') {
