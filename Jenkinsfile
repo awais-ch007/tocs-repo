@@ -1,5 +1,8 @@
 pipeline {
-    agent any
+   agent any
+    environment {
+        PROJECT_ID = 'devops-project-423307'
+        SERVICE_ACCOUNT_KEY = credentials('786a12b456c738dd6a37a28c9687fff6d7e8d5db')
     stages {
         stage('Build') {
             steps {
@@ -17,8 +20,10 @@ pipeline {
                 // Remove existing files on the remote server first
                
                sh """
-                    gcloud auth default --scopes=https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/cloud-platform
-                    gcloud compute ssh root@awaisinstance-20240521-055418 --zone=us-central1-c -- rm -rf /var/www/html/*
+                    gcloud auth activate-service-account --key-file=${SERVICE_ACCOUNT_KEY}
+                    gcloud config set project ${PROJECT_ID}
+                    gcloud config set compute/zone us-central1-c
+                    gcloud compute ssh root@awaisinstance-20240521-055418 -- rm -rf /var/www/html/*
                 """
             
 
