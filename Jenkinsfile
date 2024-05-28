@@ -16,8 +16,9 @@ pipeline {
 
                 // Remove existing files on the remote server first
                
-                sh """
-                    gcloud compute ssh root@awaisinstance-20240521-055418 --zone=us-central1-c --scopes=https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/cloud-platform -- rm -rf /var/www/html/*
+               sh """
+                    gcloud auth default --scopes=https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/cloud-platform
+                    gcloud compute ssh root@awaisinstance-20240521-055418 --zone=us-central1-c -- rm -rf /var/www/html/*
                 """
             
 
