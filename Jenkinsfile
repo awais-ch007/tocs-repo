@@ -1,12 +1,12 @@
-
 pipeline {
     agent any
-    environment {
-        REMOTE_SERVER = 'root@awaisinstance-20240521-055418'
-        REMOTE_ZONE = 'us-central1-c'
-        REMOTE_PATH = '/var/www/html'
-    }
+
     stages {
+        stage('Declarative: Checkout SCM') {
+            steps {
+                checkout scm: [$class: 'GitSCM', branches: [[name: 'AI']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/awais-ch007/tocs-repo.git']]]
+            }
+        }
         stage('Build') {
             steps {
                 echo 'Application build stage...'
@@ -15,20 +15,18 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'pwd'
-                sh 'ls -la ${WORKSPACE}'
-                // Remove existing files on the remote server first
-                sh '''
-                    gcloud compute ssh ${REMOTE_SERVER} --zone=${REMOTE_ZONE} -- "rm -rf ${REMOTE_PATH}/*"
-                '''
-                // Then copy new files from Jenkins workspace to the remote server
-                sh '''
-                    gcloud compute scp --recurse ${WORKSPACE}/* ${REMOTE_SERVER}:${REMOTE_PATH} --zone=${REMOTE_ZONE}
-                '''
+                sh 'ls -la'
+                withCredentials([usernamePassword(credentialsId: 'gcloud-credentials', passwordVariable: 'GCLOUD_PASSWORD', usernameVariable: 'GCLOUD_USERNAME')]) {
+                    sh """
+                        gcloud auth activate-service-account --key-file=/var/lib/jenkins/workspace/Tocs-proj_AI/gcloud-credentials.json
+                        gcloud compute ssh root@awaisinstance-20240521-055418 --zone=us-central1-c -- rm -rf /var/www/html/*
+                    """
+                }
             }
         }
         stage('Run') {
             steps {
-                echo 'Application run stage'
+                // Add your run stage steps here
             }
         }
     }
