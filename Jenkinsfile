@@ -1,15 +1,6 @@
-
-              
-     
 pipeline {
     agent any
-
     stages {
-        stage('Declarative: Checkout SCM') {
-            steps {
-                checkout scm: [$class: 'GitSCM', branches: [[name: 'AI']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/awais-ch007/tocs-repo.git']]]
-            }
-        }
         stage('Build') {
             steps {
                 echo 'Application build stage...'
@@ -17,14 +8,26 @@ pipeline {
         }
         stage('Test') {
             steps {
+                // Print the current working directory
                 sh 'pwd'
-                sh 'ls -la'
-                // Add your test stage steps here
+                
+                // List the contents of the Jenkins workspace
+                sh 'ls -la ${WORKSPACE}'
+
+                // Remove existing files on the remote server first
+                sh '''
+                    gcloud compute ssh root@awaisinstance-20240521-055418 --zone=us-central1-c -- "rm -rf /var/www/html/*"
+                '''
+
+                // Then copy new files from Jenkins workspace to the remote server
+                sh '''
+                    gcloud compute scp --recurse ${WORKSPACE}/* root@awaisinstance-20240521-055418:/var/www/html --zone=us-central1-c
+                '''
             }
         }
         stage('Run') {
             steps {
-                // Add your run stage steps here
+                echo 'Application run stage'
             }
         }
     }
